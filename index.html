@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>عالم الأفلام | Cinema Stream</title>
+    <!-- ربط ملف التصميم الخارجى -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- شريط العناوين والبحث العلوي -->
+    <header class="navbar">
+        <div class="logo">🎬 سينما Stream</div>
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="ابحث عن فيلم أو مسلسل...">
+            <button id="searchBtn">بحث</button>
+        </div>
+    </header>
+
+    <!-- القسم الرئيسي لعرض الأفلام -->
+    <main class="container">
+        <h2 id="sectionTitle">🔥 الأكثر شهرة اليوم</h2>
+        <!-- هنا سيتم عرض شبكة الأفلام تلقائياً بواسطة JavaScript -->
+        <div id="moviesGrid" class="movies-grid"></div>
+    </main>
+
+    <!-- نافذة عرض الفيلم والمشغل (Modal) -->
+    <div id="movieModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="closeModal">&times;</span>
+            <div id="modalBody">
+                <!-- سيتم وضع تفاصيل الفيلم والمشغل هنا عند الضغط على أي فيلم -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ربط ملف البرمجة والتفاعل -->
+    <script src="script.js"></script>
+</body>
+</html>
