@@ -1,119 +1,151 @@
-// الإعدادات الأساسية
-const apiKey = 'a50ab4b3eb439e4bd6fc3c0f80556063';
-const baseUrl = 'https://api.themoviedb.org/3';
-const imageBaseUrl = 'https://image.tmdb.org/t/p/w500';
+const API_KEY = 'YOUR_TMDB_API_KEY'; 
+const BASE_URL = 'https://api.themoviedb.org/3';
+const IMG_PATH = 'https://image.tmdb.org/t/p/w500';
 
-// العناصر الأساسية في الصفحة
-const moviesGrid = document.getElementById('moviesGrid');
-const searchInput = document.getElementById('searchInput');
-const searchBtn = document.getElementById('searchBtn');
-const sectionTitle = document.getElementById('sectionTitle');
-const movieModal = document.getElementById('movieModal');
-const modalBody = document.getElementById('modalBody');
-const closeModal = document.getElementById('closeModal');
+let currentType = 'movies'; // 'movies' أو 'series'
+let currentSeriesId = null;
 
-// 1. دالة جلب الأشهر اليوم عند فتح الموقع
+// تشغيل جلب الأفلام افتراضياً عند تحميل الصفحة
+document.addEventListener('DOMContentLoaded', () => {
+  getPopularMovies();
+});
+
+// التنقل بين الأفلام والمسلسلات
+function switchTab(type) {
+  currentType = type;
+  const controls = document.getElementById('series-controls');
+  const title = document.getElementById('section-title');
+
+  if (type === 'movies') {
+    controls.style.display = 'none';
+    title.textContent = 'الأفلام الشائعة';
+    getPopularMovies();
+  } else {
+    title.textContent = 'المسلسلات الشائعة';
+    getPopularSeries();
+  }
+}
+
+/* ==================== الأفلام ==================== */
+
 async function getPopularMovies() {
-    try {
-        const response = await fetch(`${baseUrl}/movie/popular?api_key=${apiKey}&language=ar`);
-        const data = await response.json();
-        displayMovies(data.results);
-    } catch (error) {
-        console.error('حدث خطأ أثناء جلب الأفلام:', error);
+  try {
+    const res = await fetch(`${BASE_URL}/movie/popular?api_key=${API_KEY}&language=ar-SA`);
+    const data = await res.json();
+    renderCards(data.results, 'movie');
+  } catch (error) {
+    console.error('خطأ في جلب الأفلام:', error);
+  }
+}
+
+function playMovie(movieId) {
+  document.getElementById('series-controls').style.display = 'none';
+  const iframe = document.getElementById('player-iframe');
+  iframe.src = `https://vidsrc.to/embed/movie/${movieId}`;
+}
+
+/* ==================== المسلسلات ==================== */
+
+async function getPopularSeries() {
+  try {
+    const res = await fetch(`${BASE_URL}/tv/popular?api_key=${API_KEY}&language=ar-SA`);
+    const data = await res.json();
+    renderCards(data.results, 'tv');
+  } catch (error) {
+    console.error('خطأ في جلب المسلسلات:', error);
+  }
+}
+
+async function loadSeriesDetails(seriesId) {
+  currentSeriesId = seriesId;
+  document.getElementById('series-controls').style.display = 'flex';
+
+  try {
+    const res = await fetch(`${BASE_URL}/tv/${seriesId}?api_key=${API_KEY}&language=ar-SA`);
+    const series = await res.json();
+    setupSeasonSelector(series);
+  } catch (error) {
+    console.error('خطأ في جلب تفاصيل المسلسل:', error);
+  }
+}
+
+function setupSeasonSelector(series) {
+  const seasonSelect = document.getElementById('season-select');
+  seasonSelect.innerHTML = '';
+
+  series.seasons.forEach(season => {
+    if (season.season_number > 0) {
+      const option = document.createElement('option');
+      option.value = season.season_number;
+      option.textContent = `الموسم ${season.season_number}`;
+      seasonSelect.appendChild(option);
     }
+  });
+
+  seasonSelect.onchange = () => fetchEpisodes(series.id, seasonSelect.value);
+
+  if (series.seasons.length > 0) {
+    const firstSeason = seasonSelect.value || 1;
+    fetchEpisodes(series.id, firstSeason);
+  }
 }
 
-// 2. دالة عرض شبكة الأفلام
-function displayMovies(movies) {
-    moviesGrid.innerHTML = ''; // تفريغ الصفحة أولاً
+async function fetchEpisodes(seriesId, seasonNumber) {
+  try {
+    const res = await fetch(`${BASE_URL}/tv/${seriesId}/season/${seasonNumber}?api_key=${API_KEY}&language=ar-SA`);
+    const data = await res.json();
+    
+    const episodeSelect = document.getElementById('episode-select');
+    episodeSelect.innerHTML = '';
 
-    movies.forEach(movie => {
-        // إذا لم يكن هناك بوستر للفيلم، استخدم صورة افتراضية
-        const poster = movie.poster_path ? imageBaseUrl + movie.poster_path : 'https://via.placeholder.com/500x750?text=No+Poster';
-        
-        const card = document.createElement('div');
-        card.classList.add('movie-card');
-        card.innerHTML = `
-            <img src="${poster}" alt="${movie.title}">
-            <div class="movie-info">
-                <div class="movie-title">${movie.title}</div>
-                <div class="movie-rating">⭐ ${movie.vote_average.toFixed(1)}</div>
-            </div>
-        `;
-
-        // عند النقر على الفيلم -> افتح النافذة المنبثقة للفيلم
-        card.addEventListener('click', () => openMovieModal(movie));
-
-        moviesGrid.appendChild(card);
+    data.episodes.forEach(ep => {
+      const option = document.createElement('option');
+      option.value = ep.episode_number;
+      option.textContent = `الحلقة ${ep.episode_number}: ${ep.name}`;
+      episodeSelect.appendChild(option);
     });
+
+    episodeSelect.onchange = () => playEpisode(seriesId, seasonNumber, episodeSelect.value);
+
+    if (data.episodes.length > 0) {
+      playEpisode(seriesId, seasonNumber, data.episodes[0].episode_number);
+    }
+  } catch (error) {
+    console.error('خطأ في جلب الحلقات:', error);
+  }
 }
 
-// 3. دالة فتح الفيلم وعرض المشغل
-function openMovieModal(movie) {
-    modalBody.innerHTML = `
-        <h2>${movie.title}</h2>
-        <p style="margin: 10px 0; font-size: 0.9rem; color: #ccc;">${movie.overview || 'لا يوجد وصف متوفر لهذا الفيلم.'}</p>
-        
-        <h4>📺 اختر السيرفر:</h4>
-        <div>
-            <button class="server-btn" onclick="switchServer('vidsrc_pm', ${movie.id})">سيرفر 1 (VidSrc)</button>
-            <button class="server-btn" onclick="switchServer('embedsu', ${movie.id})">سيرفر 2 (EmbedSu)</button>
-            <button class="server-btn" onclick="switchServer('2embed', ${movie.id})">سيرفر 3 (2Embed)</button>
-        </div>
+function playEpisode(seriesId, seasonNum, episodeNum) {
+  const iframe = document.getElementById('player-iframe');
+  iframe.src = `https://vidsrc.to/embed/tv/${seriesId}/${seasonNum}/${episodeNum}`;
+}
 
-        <!-- السيرفر الافتراضي هو VidSrc PM -->
-        <iframe id="playerIframe" src="https://vidsrc.pm/embed/movie/${movie.id}" allowfullscreen></iframe>
+/* ==================== بناء الواجهة ==================== */
+
+function renderCards(list, type) {
+  const container = document.getElementById('content-container');
+  if (!container) return;
+  container.innerHTML = '';
+
+  list.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'movie-card';
+    const title = item.title || item.name;
+
+    card.innerHTML = `
+      <img src="${IMG_PATH}${item.poster_path}" alt="${title}">
+      <h3>${title}</h3>
+      <p>⭐ ${item.vote_average ? item.vote_average.toFixed(1) : 'N/A'}</p>
     `;
 
-    movieModal.style.display = 'flex';
+    card.onclick = () => {
+      if (type === 'movie') {
+        playMovie(item.id);
+      } else {
+        loadSeriesDetails(item.id);
+      }
+    };
+
+    container.appendChild(card);
+  });
 }
-
-// 4. دالة التبديل بين السيرفرات داخل المشغل
-function switchServer(serverType, movieId) {
-    const iframe = document.getElementById('playerIframe');
-    if (serverType === 'vidsrc_pm') {
-        iframe.src = `https://vidsrc.pm/embed/movie/${movieId}`;
-    } else if (serverType === 'embedsu') {
-        iframe.src = `https://embed.su/embed/movie/${movieId}`;
-    } else if (serverType === '2embed') {
-        iframe.src = `https://www.2embed.cc/embed/${movieId}`;
-    }
-}
-
-// 5. دالة البحث عن أفلام
-async function searchMovies() {
-    const query = searchInput.value.trim();
-    if (!query) return;
-
-    try {
-        const response = await fetch(`${baseUrl}/search/movie?api_key=${apiKey}&language=ar&query=${encodeURIComponent(query)}`);
-        const data = await response.json();
-        
-        sectionTitle.textContent = `🔍 نتائج البحث عن: "${query}"`;
-        displayMovies(data.results);
-    } catch (error) {
-        console.error('خطأ في البحث:', error);
-    }
-}
-
-// أحداث الأزرار والبحث
-searchBtn.addEventListener('click', searchMovies);
-searchInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') searchMovies();
-});
-
-// إغلاق النافذة المنبثقة
-closeModal.addEventListener('click', () => {
-    movieModal.style.display = 'none';
-    modalBody.innerHTML = ''; // إيقاف الفيديو عند الإغلاق
-});
-
-window.addEventListener('click', (e) => {
-    if (e.target === movieModal) {
-        movieModal.style.display = 'none';
-        modalBody.innerHTML = '';
-    }
-});
-
-// تشغيل جلب الأفلام فور فتح الصفحة
-getPopularMovies();
