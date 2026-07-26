@@ -3,34 +3,194 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>منصة البث</title>
-  <link rel="stylesheet" href="style.css">
+  <title>صفحة المشاهدة - السيرفرات المتعددة</title>
+  <style>
+    /* إعادة ضبط أساسيات الصفحة */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: #0f172a;
+      color: #f8fafc;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+
+    /* الحاوية الرئيسية */
+    .watch-container {
+      width: 100%;
+      max-width: 960px;
+      background-color: #1e293b;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    }
+
+    /* عنوان المسلسل والحلقة */
+    .media-title {
+      font-size: 1.5rem;
+      margin-bottom: 15px;
+      color: #38bdf8;
+      border-bottom: 2px solid #334155;
+      padding-bottom: 10px;
+    }
+
+    /* مشغل الفيديو المرن (16:9 Aspect Ratio) */
+    .player-wrapper {
+      position: relative;
+      width: 100%;
+      padding-bottom: 56.25%; /* نسبة 16:9 */
+      height: 0;
+      background-color: #000;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .player-wrapper iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
+    /* قسم السيرفرات */
+    .servers-section {
+      background-color: #0f172a;
+      padding: 15px 20px;
+      border-radius: 8px;
+      border: 1px solid #334155;
+    }
+
+    .servers-section h3 {
+      font-size: 1.1rem;
+      margin-bottom: 12px;
+      color: #94a3b8;
+    }
+
+    .server-buttons {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    /* أزرار السيرفرات */
+    .server-btn {
+      background-color: #334155;
+      color: #f8fafc;
+      border: 1px solid #475569;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .server-btn:hover {
+      background-color: #475569;
+      border-color: #38bdf8;
+    }
+
+    /* تمييز السيرفر النشط حالياً */
+    .server-btn.active {
+      background-color: #0284c7;
+      border-color: #38bdf8;
+      color: #ffffff;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+    }
+  </style>
 </head>
 <body>
 
-  <header>
-    <div class="logo">موقعي</div>
-    <nav>
-      <button onclick="switchCategory('movie')">الأفلام</button>
-      <button onclick="switchCategory('tv')">المسلسلات</button>
-    </nav>
-  </header>
+  <div class="watch-container">
+    
+    <!-- عنوان العمل -->
+    <h1 class="media-title" id="media-title">جاري تحميل العنوان...</h1>
 
-  <main class="container">
     <!-- مشغل الفيديو -->
-    <section class="player-container">
-      <div class="iframe-wrapper">
-        <iframe id="player-iframe" src="" allowfullscreen frameborder="0"></iframe>
+    <div class="player-wrapper">
+      <iframe 
+        id="main-player" 
+        src="" 
+        allowfullscreen 
+        scrolling="no">
+      </iframe>
+    </div>
+
+    <!-- أزرار خيارات السيرفرات -->
+    <div class="servers-section">
+      <h3>اختر سيرفر المشاهدة (إذا لم يعمل الأول، جرب التالي):</h3>
+      <div class="server-buttons" id="server-list">
+        <!-- يتم توليد أزرار السيرفرات هنا تلقائياً عن طريق الجافاسكربت -->
       </div>
-    </section>
+    </div>
 
-    <!-- قائمة العرض -->
-    <section class="grid-section">
-      <h2 id="section-title">الأفلام الشائعة</h2>
-      <div id="content-container" class="movies-grid"></div>
-    </section>
-  </main>
+  </div>
 
-  <script src="script.js"></script>
+  <script>
+    // 1. بيانات المسلسل/الحلقة وروابط السيرفرات المتاحة
+    // (تقدر تعدل الروابط والأسماء هنا بسهولة)
+    const mediaData = {
+      title: "صراع العروش - الموسم 1 - الحلقة 1",
+      servers: [
+        { name: "سيرفر 1 (سريع)", url: "https://vidsrc.me/embed/tv?imdb=tt0944947" },
+        { name: "سيرفر 2 (HD)", url: "https://databasegdriveplayer.xyz/player.php?type=series&imdb=tt0944947" },
+        { name: "سيرفر 3 (بديل)", url: "https://autoembed.to/tv/imdb/tt0944947-1-1" }
+      ]
+    };
+
+    // 2. دالة تشغيل المشغل وبناء الأزرار
+    function initPlayer() {
+      const player = document.getElementById('main-player');
+      const serverList = document.getElementById('server-list');
+      const mediaTitle = document.getElementById('media-title');
+
+      // تعيين العنوان
+      mediaTitle.innerText = mediaData.title;
+
+      // تنظيف القائمة قبل الإضافة
+      serverList.innerHTML = '';
+
+      // المرور على كل سيرفر وإنشاء زر خاص به
+      mediaData.servers.forEach((server, index) => {
+        const button = document.createElement('button');
+        button.className = 'server-btn';
+        button.innerText = server.name;
+
+        // تشغيل السيرفر الأول تلقائياً كـ Default
+        if (index === 0) {
+          button.classList.add('active');
+          player.src = server.url;
+        }
+
+        // حدث الضغط على زر السيرفر
+        button.onclick = () => {
+          // تغيير رابط المشغل
+          player.src = server.url;
+
+          // إزالة التحديد عن جميع الأزرار وتحديد الزر المقتنى
+          document.querySelectorAll('.server-btn').forEach(btn => btn.classList.remove('active'));
+          button.classList.add('active');
+        };
+
+        serverList.appendChild(button);
+      });
+    }
+
+    // تشغيل الدالة تلقائياً عند تحميل الصفحة
+    document.addEventListener('DOMContentLoaded', initPlayer);
+  </script>
+
 </body>
 </html>
