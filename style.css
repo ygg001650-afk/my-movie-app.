@@ -1,4 +1,40 @@
-/* أزرار التنقل بين الأفلام والمسلسلات */
+/* ==================== إعادة ضبط وتنسيقات عامة ==================== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #141414;
+  color: #ffffff;
+  direction: rtl;
+  overflow-x: hidden; /* إلغاء شريط التمرير الأفقي تماماً */
+}
+
+.container {
+  width: 90%;
+  max-width: 1100px;
+  margin: 20px auto;
+}
+
+/* ==================== الهيدر والأزرار ==================== */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 5%;
+  background-color: #000000;
+  border-bottom: 1px solid #222;
+}
+
+.logo {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #e50914;
+}
+
 nav button {
   background: transparent;
   border: 1px solid #e50914;
@@ -8,9 +44,85 @@ nav button {
   border-radius: 4px;
   cursor: pointer;
   font-size: 0.9rem;
-  transition: background 0.2s;
+  transition: all 0.2s ease;
 }
 
 nav button:hover {
   background-color: #e50914;
+}
+
+/* ==================== مشغل الفيديو ==================== */
+.player-container {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto 30px auto;
+}
+
+.iframe-wrapper {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%; /* نسبة 16:9 ثابتة */
+  height: 0;
+  background-color: #000;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.iframe-wrapper iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* ==================== شبكة الكروت (مضبوطة بالحجم) ==================== */
+.grid-section h2 {
+  margin-bottom: 15px;
+  font-size: 1.3rem;
+  border-right: 4px solid #e50914;
+  padding-right: 10px;
+}
+
+.movies-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* تحديد عرض منظم */
+  gap: 15px;
+}
+
+.movie-card {
+  background-color: #1f1f1f;
+  border-radius: 6px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.movie-card:hover {
+  transform: translateY(-4px);
+}
+
+.movie-card img {
+  width: 100%;
+  height: 225px; /* ارتفاع ثابت للبوستر */
+  object-fit: cover; /* منع تمطط الصور */
+  display: block;
+}
+
+.movie-card h3 {
+  font-size: 0.85rem;
+  padding: 8px 8px 4px 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #fff;
+}
+
+.movie-card p {
+  font-size: 0.75rem;
+  color: #aaa;
+  padding: 0 8px 8px 8px;
 }
