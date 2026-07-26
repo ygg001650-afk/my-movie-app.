@@ -11,33 +11,20 @@
   <header>
     <div class="logo">موقعي</div>
     <nav>
-      <button onclick="switchTab('movies')">الأفلام</button>
-      <button onclick="switchTab('series')">المسلسلات</button>
+      <button onclick="switchCategory('movie')">الأفلام</button>
+      <button onclick="switchCategory('tv')">المسلسلات</button>
     </nav>
   </header>
 
   <main class="container">
-    <!-- قسم المشغل (يحتوي الفيديو وقوائم المواسم/الحلقات للمسلسلات) -->
-    <section id="player-section" class="player-container">
+    <!-- مشغل الفيديو -->
+    <section class="player-container">
       <div class="iframe-wrapper">
         <iframe id="player-iframe" src="" allowfullscreen frameborder="0"></iframe>
       </div>
-
-      <!-- أدوات اختيار الموسم والحلقة (تظهر فقط عند اختيار مسلسل) -->
-      <div id="series-controls" class="controls-wrapper" style="display: none;">
-        <div class="select-box">
-          <label for="season-select">الموسم:</label>
-          <select id="season-select"></select>
-        </div>
-
-        <div class="select-box">
-          <label for="episode-select">الحلقة:</label>
-          <select id="episode-select"></select>
-        </div>
-      </div>
     </section>
 
-    <!-- شبكة عرض المحتوى (أفلام أو مسلسلات) -->
+    <!-- قائمة العرض -->
     <section class="grid-section">
       <h2 id="section-title">الأفلام الشائعة</h2>
       <div id="content-container" class="movies-grid"></div>
