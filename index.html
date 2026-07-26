@@ -1,41 +1,49 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>عالم الأفلام | Cinema Stream</title>
-    <!-- ربط ملف التصميم الخارجى -->
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>منصة البث</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- شريط العناوين والبحث العلوي -->
-    <header class="navbar">
-        <div class="logo">🎬 سينما Stream</div>
-        <div class="search-box">
-            <input type="text" id="searchInput" placeholder="ابحث عن فيلم أو مسلسل...">
-            <button id="searchBtn">بحث</button>
+  <header>
+    <div class="logo">موقعي</div>
+    <nav>
+      <button onclick="switchTab('movies')">الأفلام</button>
+      <button onclick="switchTab('series')">المسلسلات</button>
+    </nav>
+  </header>
+
+  <main class="container">
+    <!-- قسم المشغل (يحتوي الفيديو وقوائم المواسم/الحلقات للمسلسلات) -->
+    <section id="player-section" class="player-container">
+      <div class="iframe-wrapper">
+        <iframe id="player-iframe" src="" allowfullscreen frameborder="0"></iframe>
+      </div>
+
+      <!-- أدوات اختيار الموسم والحلقة (تظهر فقط عند اختيار مسلسل) -->
+      <div id="series-controls" class="controls-wrapper" style="display: none;">
+        <div class="select-box">
+          <label for="season-select">الموسم:</label>
+          <select id="season-select"></select>
         </div>
-    </header>
 
-    <!-- القسم الرئيسي لعرض الأفلام -->
-    <main class="container">
-        <h2 id="sectionTitle">🔥 الأكثر شهرة اليوم</h2>
-        <!-- هنا سيتم عرض شبكة الأفلام تلقائياً بواسطة JavaScript -->
-        <div id="moviesGrid" class="movies-grid"></div>
-    </main>
-
-    <!-- نافذة عرض الفيلم والمشغل (Modal) -->
-    <div id="movieModal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" id="closeModal">&times;</span>
-            <div id="modalBody">
-                <!-- سيتم وضع تفاصيل الفيلم والمشغل هنا عند الضغط على أي فيلم -->
-            </div>
+        <div class="select-box">
+          <label for="episode-select">الحلقة:</label>
+          <select id="episode-select"></select>
         </div>
-    </div>
+      </div>
+    </section>
 
-    <!-- ربط ملف البرمجة والتفاعل -->
-    <script src="script.js"></script>
+    <!-- شبكة عرض المحتوى (أفلام أو مسلسلات) -->
+    <section class="grid-section">
+      <h2 id="section-title">الأفلام الشائعة</h2>
+      <div id="content-container" class="movies-grid"></div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
 </body>
 </html>
